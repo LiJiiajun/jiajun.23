@@ -198,10 +198,10 @@ always_comb begin
 		byte_id=char_id[1:0];
 	end
 	
-	if(visible_q) begin
+	if(visible_qq) begin
 		c_word=draw_vram_word;
 		
-		case(byte_id_q)
+		case(byte_id_qq)
 			2'd0: c_byte=c_word[7:0];
 			2'd1: c_byte=c_word[15:8];
 			2'd2: c_byte=c_word[23:16];
@@ -211,8 +211,8 @@ always_comb begin
 
 		inv_bit=c_byte[7];
 		g_code=c_byte[6:0];
-		font_addr={g_code, DrawY_q[3:0]};
-		g_pixel=font_data[7-DrawX_q[2:0]];
+		font_addr={g_code, DrawY_qq[3:0]};
+		g_pixel=font_data[7-DrawX_qq[2:0]];
 		color=g_pixel^inv_bit;
 		
 		if(color) begin

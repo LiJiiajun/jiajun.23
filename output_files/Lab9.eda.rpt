@@ -1,5 +1,5 @@
 EDA Netlist Writer report for Lab9
-Wed Apr 29 22:41:11 2026
+Wed Apr 29 23:01:00 2026
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -36,7 +36,7 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------+
 ; EDA Netlist Writer Summary                                        ;
 +---------------------------+---------------------------------------+
-; EDA Netlist Writer Status ; Successful - Wed Apr 29 22:41:11 2026 ;
+; EDA Netlist Writer Status ; Successful - Wed Apr 29 23:01:00 2026 ;
 ; Revision Name             ; Lab9                                  ;
 ; Top-level Entity Name     ; lab9                                  ;
 ; Family                    ; Cyclone IV E                          ;
@@ -88,7 +88,7 @@ refer to the applicable agreement for further details.
 Info: *******************************************************************
 Info: Running Quartus Prime EDA Netlist Writer
     Info: Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
-    Info: Processing started: Wed Apr 29 22:41:06 2026
+    Info: Processing started: Wed Apr 29 23:00:56 2026
 Info: Command: quartus_eda --read_settings_files=off --write_settings_files=off Lab9 -c Lab9
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (204019): Generated file Lab9_7_1200mv_85c_slow.svo in folder "D:/385lab/Lab9/simulation/modelsim/" for EDA simulation tool
@@ -100,9 +100,9 @@ Info (204019): Generated file Lab9_7_1200mv_0c_v_slow.sdo in folder "D:/385lab/L
 Info (204019): Generated file Lab9_min_1200mv_0c_v_fast.sdo in folder "D:/385lab/Lab9/simulation/modelsim/" for EDA simulation tool
 Info (204019): Generated file Lab9_v.sdo in folder "D:/385lab/Lab9/simulation/modelsim/" for EDA simulation tool
 Info: Quartus Prime EDA Netlist Writer was successful. 0 errors, 1 warning
-    Info: Peak virtual memory: 4743 megabytes
-    Info: Processing ended: Wed Apr 29 22:41:11 2026
-    Info: Elapsed time: 00:00:05
+    Info: Peak virtual memory: 4749 megabytes
+    Info: Processing ended: Wed Apr 29 23:01:00 2026
+    Info: Elapsed time: 00:00:04
     Info: Total CPU time (on all processors): 00:00:04
 
 

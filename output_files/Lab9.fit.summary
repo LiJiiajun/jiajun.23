@@ -1,16 +1,16 @@
-Fitter Status : Successful - Wed Apr 29 23:15:43 2026
+Fitter Status : Successful - Wed May 06 18:58:08 2026
 Quartus Prime Version : 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 Revision Name : Lab9
 Top-level Entity Name : lab9
 Family : Cyclone IV E
 Device : EP4CE115F29C7
 Timing Models : Final
-Total logic elements : 4,359 / 114,480 ( 4 % )
-    Total combinational functions : 3,732 / 114,480 ( 3 % )
-    Dedicated logic registers : 2,124 / 114,480 ( 2 % )
-Total registers : 2246
+Total logic elements : 4,656 / 114,480 ( 4 % )
+    Total combinational functions : 3,961 / 114,480 ( 3 % )
+    Dedicated logic registers : 2,346 / 114,480 ( 2 % )
+Total registers : 2468
 Total pins : 105 / 529 ( 20 % )
 Total virtual pins : 0
-Total memory bits : 44,160 / 3,981,312 ( 1 % )
+Total memory bits : 49,792 / 3,981,312 ( 1 % )
 Embedded Multiplier 9-bit elements : 0 / 532 ( 0 % )
 Total PLLs : 1 / 4 ( 25 % )

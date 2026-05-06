@@ -4,7 +4,7 @@
  * Machine generated for CPU 'nios2_gen2_0' in SOPC Builder design 'lab9_soc'
  * SOPC Builder design path: ../../lab9_soc.sopcinfo
  *
- * Generated: Wed Apr 22 19:58:37 CST 2026
+ * Generated: Wed May 06 15:04:52 CST 2026
  */
 
 /*
@@ -62,7 +62,7 @@
 
 #define ALT_CPU_ARCHITECTURE "altera_nios2_gen2"
 #define ALT_CPU_BIG_ENDIAN 0
-#define ALT_CPU_BREAK_ADDR 0x00002020
+#define ALT_CPU_BREAK_ADDR 0x00001020
 #define ALT_CPU_CPU_ARCH_NIOS2_R1
 #define ALT_CPU_CPU_FREQ 50000000u
 #define ALT_CPU_CPU_ID_SIZE 1
@@ -99,7 +99,7 @@
  */
 
 #define NIOS2_BIG_ENDIAN 0
-#define NIOS2_BREAK_ADDR 0x00002020
+#define NIOS2_BREAK_ADDR 0x00001020
 #define NIOS2_CPU_ARCH_NIOS2_R1
 #define NIOS2_CPU_FREQ 50000000u
 #define NIOS2_CPU_ID_SIZE 1
@@ -491,7 +491,7 @@
 #define SYSID_QSYS_0_IRQ_INTERRUPT_CONTROLLER_ID -1
 #define SYSID_QSYS_0_NAME "/dev/sysid_qsys_0"
 #define SYSID_QSYS_0_SPAN 8
-#define SYSID_QSYS_0_TIMESTAMP 1776858283
+#define SYSID_QSYS_0_TIMESTAMP 1777475605
 #define SYSID_QSYS_0_TYPE "altera_avalon_sysid_qsys"
 
 
@@ -501,11 +501,11 @@
  */
 
 #define ALT_MODULE_CLASS_vga_text_mode_controller_0 vga_text_mode_controller
-#define VGA_TEXT_MODE_CONTROLLER_0_BASE 0x1000
+#define VGA_TEXT_MODE_CONTROLLER_0_BASE 0x4000
 #define VGA_TEXT_MODE_CONTROLLER_0_IRQ -1
 #define VGA_TEXT_MODE_CONTROLLER_0_IRQ_INTERRUPT_CONTROLLER_ID -1
 #define VGA_TEXT_MODE_CONTROLLER_0_NAME "/dev/vga_text_mode_controller_0"
-#define VGA_TEXT_MODE_CONTROLLER_0_SPAN 4096
+#define VGA_TEXT_MODE_CONTROLLER_0_SPAN 16384
 #define VGA_TEXT_MODE_CONTROLLER_0_TYPE "vga_text_mode_controller"
 
 #endif /* __SYSTEM_H_ */

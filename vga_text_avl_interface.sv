@@ -24,8 +24,8 @@ BKG_R/G/B = Background color, flipped with foreground when IVn bit is set
 FGD_R/G/B = Foreground color, flipped with background when Inv bit is set
 
 ************************************************************************/
-`define VRAM_WORDS 600 //80*30 characters / 4 characters per register
-`define CTRL_ADDR 12'h258 //index of control register
+//`define VRAM_WORDS 600 //80*30 characters / 4 characters per register
+//`define CTRL_ADDR 12'h258 //index of control register
 
 module vga_text_avl_interface (
 	// Avalon Clock Input, note this clock is also used for VGA, so this must be 50Mhz
@@ -49,15 +49,18 @@ module vga_text_avl_interface (
 	output logic hs, vs,					// VGA HS/VS
 	output logic sync, blank, pixel_clk		// Required by DE2-115 video encoder
 );
+localparam int VRAM_WORDS=1200;
+localparam int PALETTE_WORDS=8;
 // Registers
-logic [31:0] CTRL_REG_DATA;
 logic [31:0] draw_vram_word;
 logic[31:0] avl_vram_q;
 logic[31:0] vga_vram_q;
+logic[31:0] palette_regs[0:PALETTE_WORDS-1];
+logic[31:0] palette_read_q;
 logic vram_write;
 logic avl_read_vram_q;
-logic avl_read_ctrl_q;
-logic[31:0] ctrl_read_q;
+logic palette_write;
+logic avl_read_palette_q;
 //put other local variables here
 logic[9:0] DrawX, DrawY;
 logic[9:0] DrawX_q, DrawY_q;
@@ -67,21 +70,26 @@ logic[7:0] font_data;
 logic[4:0] char_row;
 logic[6:0] char_col;
 logic[11:0] char_id;
-logic[9:0] word_id;
-logic[1:0] byte_id;
-logic[1:0] byte_id_q;
-logic[1:0] byte_id_qq;
+logic[10:0] word_id;
+logic half_char;
+logic half_char_q;
+logic half_char_qq;
 logic[31:0] c_word;
-logic[7:0] c_byte;
+logic[7:0] color_byte;
+logic[7:0] glyph_byte;
 logic[6:0] g_code;
 logic inv_bit;
 logic g_pixel;
 logic color;
 logic[3:0] fg_r,fg_g,fg_b;
 logic[3:0] bg_r,bg_g,bg_b;
+logic[3:0] fg_i,bg_i;
+logic[31:0] fg_palette_word;
+logic[31:0]bg_palette_word;
 logic visible;
 logic visible_q;
 logic visible_qq;
+integer i;
 
 //Declare submodules..e.g. VGA controller, ROMS, etc
 vga_controller vga_core(
@@ -101,10 +109,11 @@ font_rom font_rom_inst(
 	.data(font_data)
 );
 
-assign vram_write = (!RESET) && AVL_CS && AVL_WRITE && (AVL_ADDR < `VRAM_WORDS);
+assign vram_write = (!RESET) && AVL_CS && AVL_WRITE && (!AVL_ADDR[11]) && (AVL_ADDR<VRAM_WORDS);
+assign palette_write = (!RESET) && AVL_CS && AVL_WRITE && AVL_ADDR[11] && (AVL_ADDR[10:3] == 8'd0);
 
 lab9_2_vram vram_inst(
-	.address_a(AVL_ADDR[9:0]),
+	.address_a(AVL_ADDR[10:0]),
 	.address_b(word_id),
 	.byteena_a(AVL_BYTE_EN),
 	.clock(CLK),
@@ -120,16 +129,18 @@ assign draw_vram_word = visible_qq ? vga_vram_q : 32'h0000_0000;
 // Read and write from AVL interface to register block, note that READ waitstate = 1, so this should be in always_ff
 always_ff @(posedge CLK) begin
 	if(RESET) begin
-		CTRL_REG_DATA<=32'h01FF_E000;
-		ctrl_read_q<=32'h0000_0000;
+		for(i=0;i<PALETTE_WORDS;i=i+1) begin
+			palette_regs[i]<=32'h000_0000;
+		end
+		palette_read_q<=32'h0000_0000;
 		avl_read_vram_q<=1'b0;
-		avl_read_ctrl_q<=1'b0;
+		avl_read_palette_q<=1'b0;
 		DrawX_q<=10'd0;
 		DrawY_q<=10'd0;
 		DrawX_qq<=10'd0;
 		DrawY_qq<=10'd0;
-		byte_id_q<=2'd0;
-		byte_id_qq<=2'd0;
+		half_char_q<=1'b0;
+		half_char_qq<=1'b0;
 		visible_q<=1'b0;
 		visible_qq<=1'b0;
 	end
@@ -138,19 +149,19 @@ always_ff @(posedge CLK) begin
 		DrawY_q<=DrawY;
 		DrawX_qq<=DrawX_q;
 		DrawY_qq<=DrawY_q;
-		byte_id_q<=byte_id;
-		byte_id_qq<=byte_id_q;
+		half_char_q<=half_char;
+		half_char_qq<=half_char_q;
 		visible_q<=visible;
 		visible_qq<=visible_q;
-		if(AVL_CS && AVL_WRITE && (AVL_ADDR==`CTRL_ADDR)) begin
-			if(AVL_BYTE_EN[0]) CTRL_REG_DATA[7:0]<=AVL_WRITEDATA[7:0];
-			if(AVL_BYTE_EN[1]) CTRL_REG_DATA[15:8]<=AVL_WRITEDATA[15:8];
-			if(AVL_BYTE_EN[2]) CTRL_REG_DATA[23:16]<=AVL_WRITEDATA[23:16];
-			if(AVL_BYTE_EN[3]) CTRL_REG_DATA[31:24]<=AVL_WRITEDATA[31:24];
+		if(palette_write) begin
+			if(AVL_BYTE_EN[0]) palette_regs[AVL_ADDR[2:0]][7:0]<=AVL_WRITEDATA[7:0];
+			if(AVL_BYTE_EN[1]) palette_regs[AVL_ADDR[2:0]][15:8]<=AVL_WRITEDATA[15:8];
+			if(AVL_BYTE_EN[2]) palette_regs[AVL_ADDR[2:0]][23:16]<=AVL_WRITEDATA[23:16];
+			if(AVL_BYTE_EN[3]) palette_regs[AVL_ADDR[2:0]][31:24]<=AVL_WRITEDATA[31:24];
 		end
-		avl_read_vram_q<=AVL_CS && AVL_READ && (AVL_ADDR<`VRAM_WORDS);
-		avl_read_ctrl_q<=AVL_CS && AVL_READ && (AVL_ADDR==`CTRL_ADDR);
-		ctrl_read_q<=CTRL_REG_DATA;
+		avl_read_vram_q<=AVL_CS && AVL_READ && (!AVL_ADDR[11]) && (AVL_ADDR<VRAM_WORDS);
+		avl_read_palette_q<=AVL_CS && AVL_READ && AVL_ADDR[11] && (AVL_ADDR[10:3] == 8'd0);
+		palette_read_q<=palette_regs[AVL_ADDR[2:0]];
 	end
 end
 
@@ -159,8 +170,8 @@ end
 always_comb begin
 	if(avl_read_vram_q)
 		AVL_READDATA=avl_vram_q;
-	else if(avl_read_ctrl_q)
-		AVL_READDATA=ctrl_read_q;
+	else if(avl_read_palette_q)
+		AVL_READDATA=palette_read_q;
 	else
 		AVL_READDATA=32'h0000_0000;
 end
@@ -172,45 +183,76 @@ always_comb begin
 	char_row=5'd0;
 	char_col=7'd0;
 	char_id=12'd0;
-	word_id=10'd0;
-	byte_id=2'd0;
+	word_id=11'd0;
+	half_char=1'b0;
 	c_word=32'd0;
-	c_byte=8'd0;
+	color_byte=8'd0;
+	glyph_byte=8'd0;
 	g_code=7'd0;
 	inv_bit=1'b0;
 	font_addr=11'd0;
 	g_pixel=1'b0;
 	color=1'b0;
+	fg_i=4'd0;
+	bg_i=4'd0;
+	fg_palette_word=32'd0;
+	bg_palette_word=32'd0;
+	fg_r=4'd0;
+	fg_g=4'd0;
+	fg_b=4'd0;
+	bg_r=4'd0;
+	bg_g=4'd0;
+	bg_b=4'd0;
 	visible=(blank&&(DrawX<10'd640)&&(DrawY<10'd480));
-	
-	fg_r=CTRL_REG_DATA[24:21];
-	fg_g=CTRL_REG_DATA[20:17];
-	fg_b=CTRL_REG_DATA[16:13];
-	bg_r=CTRL_REG_DATA[12:9];
-	bg_g=CTRL_REG_DATA[8:5];
-	bg_b=CTRL_REG_DATA[4:1];
 	
 	if(visible) begin
 		char_col=DrawX[9:3];
 		char_row=DrawY[8:4];
 		char_id=char_row*12'd80+char_col;
-		word_id=char_id[11:2];
-		byte_id=char_id[1:0];
+		word_id=char_id[11:1];
+		half_char=char_id[0];
 	end
 	
 	if(visible_qq) begin
 		c_word=draw_vram_word;
 		
-		case(byte_id_qq)
-			2'd0: c_byte=c_word[7:0];
-			2'd1: c_byte=c_word[15:8];
-			2'd2: c_byte=c_word[23:16];
-			2'd3: c_byte=c_word[31:24];
-			default: c_byte=8'h00;
-		endcase
-
-		inv_bit=c_byte[7];
-		g_code=c_byte[6:0];
+		if(half_char_qq) begin
+			glyph_byte=c_word[31:24];
+			color_byte=c_word[23:16];
+		end
+		else begin
+			glyph_byte=c_word[15:8];
+			color_byte=c_word[7:0];
+		end
+		
+		fg_i=color_byte[7:4];
+		bg_i=color_byte[3:0];
+		fg_palette_word=palette_regs[fg_i[3:1]];
+		bg_palette_word=palette_regs[bg_i[3:1]];
+		
+		if(fg_i[0]) begin
+			fg_r=fg_palette_word[24:21];
+			fg_g=fg_palette_word[20:17];
+			fg_b=fg_palette_word[16:13];
+		end
+		else begin
+			fg_r=fg_palette_word[12:9];
+			fg_g=fg_palette_word[8:5];
+			fg_b=fg_palette_word[4:1];
+		end
+		if(bg_i[0]) begin
+			bg_r=bg_palette_word[24:21];
+			bg_g=bg_palette_word[20:17];
+			bg_b=bg_palette_word[16:13];
+		end
+		else begin
+			bg_r=bg_palette_word[12:9];
+			bg_g=bg_palette_word[8:5];
+			bg_b=bg_palette_word[4:1];
+		end			
+		
+		inv_bit=glyph_byte[7];
+		g_code=glyph_byte[6:0];
 		font_addr={g_code, DrawY_qq[3:0]};
 		g_pixel=font_data[7-DrawX_qq[2:0]];
 		color=g_pixel^inv_bit;

@@ -5,10 +5,12 @@
  *      Author: notch
  */
 
-#include "text_mode_vga.h"
+#include "text_mode_vga_color.h"
+#include "palette_test.h"
 
 int main() {
-    textVGATest();
+    paletteTest();
+    textVGAColorScreenSaver();
     while (1) {}
     return 0;
 }

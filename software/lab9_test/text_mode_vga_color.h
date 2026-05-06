@@ -19,6 +19,8 @@
 struct TEXT_VGA_STRUCT {
 	alt_u8 VRAM [ROWS*COLUMNS*2]; //Week 2 - extended VRAM
 	//modify this by adding const bytes to skip to palette, or manually compute palette
+	alt_u8 RESERVED[0x2000-ROWS*COLUMNS*2];
+	alt_u32 PALETTE[8];
 };
 
 struct COLOR{
